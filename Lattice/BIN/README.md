@@ -1,1 +1,0 @@
-Alchrity Cu programming file.

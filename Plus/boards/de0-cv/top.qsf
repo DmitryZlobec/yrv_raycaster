@@ -145,6 +145,10 @@ set_location_assignment PIN_L18  -to lpt_AUTOFEED
 set_location_assignment PIN_M16  -to lpt_error
 set_location_assignment PIN_C16  -to lpt_reset
 
+set_location_assignment PIN_D3 -to ps2k_clk
+set_location_assignment PIN_G2 -to ps2k_data
+
+
 # set_location_assignment PIN_U17  -to dram_addr[0]
 # set_location_assignment PIN_W19  -to dram_addr[1]
 # set_location_assignment PIN_V18  -to dram_addr[2]

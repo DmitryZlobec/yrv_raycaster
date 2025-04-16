@@ -31,7 +31,9 @@ module top
   input         lpt_BUSY,
   input         lpt_POUT,
   input         lpt_SEL,
-  output        lpt_reset
+  output        lpt_reset,
+  input         ps2k_clk,
+  input         ps2k_data
 
   `ifdef BOOT_FROM_AUX_UART
   ,
@@ -183,19 +185,14 @@ always_ff @ (posedge time_clk or posedge reset)
   assign lpt_STROBE = port3_reg[0];
   assign lpt_reset = port3_reg[1];
   assign lpt_data =   port2_reg[7:0];
-  assign port4_in[0] = lpt_ACK;
-  assign port4_in[1] = lpt_BUSY;
-  assign port4_in[2] = lpt_POUT;
-  assign port4_in[3] = lpt_SEL;
-
-  assign port4_in[15:4] = 1'b0;
+  assign port4_in = key_code;
   assign port5_in = timer;
 
 
   //--------------------------------------------------------------------------
   // MCU instantiation
 
-  yrv_mcu i_yrv_mcu (.clk (muxed_clk), .*);
+  yrv_mcu i_yrv_mcu (.clk (muxed_clk),.*);
 
   //--------------------------------------------------------------------------
   // Pin assignments
@@ -409,41 +406,23 @@ always_ff @ (posedge time_clk or posedge reset)
         end
     end
 
+  wire [7:0] scan_code, ascii_code;
+  wire scan_code_ready;
+  wire letter_case;
+  reg  [7:0] r_reg;                       // baud rate generator register
+  wire [7:0] r_next;                      // baud rate generator next state logic
+  wire tick;                              // baud tick for uart_rx & uart_tx
 
-    // always_comb
-    // begin
-    //   // Circle
-
-    //   if (~ display_on)
-    //     begin          
-    //       vga_r = 4'b0000;
-    //       vga_g = 4'b0000;
-    //       vga_b = 4'b0000;
-    //     end
-    //   else if (x ** 2 + y ** 2 < 100 ** 2)
-    //     begin
-    //       vga_r = 4'b1111;
-    //       vga_g = 4'b0000;
-    //       vga_b = 4'b0000;          
-    //     end
-    //   else if (x > 200 & y > 200 & x < 300 & y < 400) 
-    //     begin
-    //       vga_r = 4'b1111;
-    //       vga_g = 4'b0011;
-    //       vga_b = 4'b0000;    
-    //     end
-    //   else if ((x - 600) ** 2 + (y - 200) ** 2 < 70 ** 2)
-    //     begin
-    //       vga_r = 4'b1111;
-    //       vga_g = 4'b1111;
-    //       vga_b = 4'b1111;          
-    //     end
-    //   else
-    //     begin
-    //       vga_r = 4'b0000;
-    //       vga_g = 4'b0011;
-    //       vga_b = 4'b1111;            
-    //     end
-    // end
+  reg [7:0] key_code;
+  always_ff @ (posedge clk or negedge resetb)
+    if (~ resetb)
+        begin  
+          key_code<='0;
+        end
+    else
+      begin
+          key_code<=ascii_code;
+      end
+ps2scan ps2scan(.clk(clk), .rst_n(resetb), .ps2k_clk(ps2k_clk), .ps2k_data(ps2k_data), .ps2_byte(ascii_code), .ps2_state(scan_code_ready)); 
 
 endmodule

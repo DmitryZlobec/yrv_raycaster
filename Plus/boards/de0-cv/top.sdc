@@ -28,3 +28,5 @@ set_false_path -from * -to tx
 
 set_false_path -from * -to lpt_STROBE
 set_false_path -from * -to lpt_data
+set_false_path -from * -to ps2k_clk
+set_false_path -from * -to ps2k_data
